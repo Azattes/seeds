@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "config"
+name = "seeds"
 version = "0.1.0"
 description = ""
 authors = ["Azattes"]
