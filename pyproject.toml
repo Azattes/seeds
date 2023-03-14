@@ -6,10 +6,11 @@ authors = ["Azattes"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
+tomli = "^2.0.1"
 python = "^3.9"
 mako = "^1.2.4"
 typer = "^0.7.0"
-alembic = "^1.10.1"
+alembic = "1.8.1"
 asyncpg = "^0.27.0"
 asyncio = "^3.4.3"
 python-dotenv = "^1.0.0"
