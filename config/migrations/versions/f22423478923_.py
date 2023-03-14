@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: d165e2130a6c
-Revises: 5629c517b283
-Create Date: 2023-03-10 16:47:22.254089
+Revision ID: f22423478923
+Revises: 
+Create Date: 2023-03-13 14:00:51.316531
 
 """
 from alembic import op
@@ -11,8 +11,8 @@ import ormar
 
 
 # revision identifiers, used by Alembic.
-revision = 'd165e2130a6c'
-down_revision = '5629c517b283'
+revision = 'f22423478923'
+down_revision = None
 branch_labels = None
 depends_on = None
 
@@ -23,6 +23,7 @@ def upgrade() -> None:
     sa.Column('id', ormar.fields.sqlalchemy_uuid.CHAR(32), nullable=False),
     sa.Column('is_executed', sa.Boolean(), nullable=True),
     sa.Column('previous_seed_id', ormar.fields.sqlalchemy_uuid.CHAR(32), nullable=True),
+    sa.Column('created_at', sa.DateTime(timezone=True), nullable=True),
     sa.ForeignKeyConstraint(['previous_seed_id'], ['seeds.id'], name='fk_seeds_seeds_id_previous_seed_id', ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )

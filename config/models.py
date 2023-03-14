@@ -17,7 +17,9 @@ class Seed(ormar.Model):
     class Meta(BaseMeta):
         tablename = "seeds"
 
-    id: uuid.UUID = ormar.UUID(primary_key=True, default=uuid.uuid4)
+    id: uuid.UUID = ormar.UUID(
+        primary_key=True, default=uuid.uuid4, uuid_format="str"
+    )
     is_executed: bool = ormar.Boolean(default=False)
     previous_seed_id: SeedRef = ormar.ForeignKey(
         SeedRef,

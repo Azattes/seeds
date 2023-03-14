@@ -96,15 +96,20 @@ class Runner:
     async def create_file(self) -> pathlib.Path:
         file_path = BASE_DIR / "script.py.mako"
         template = Template(filename=str(file_path))
-
-        latest_seed: Seed = await Seed.objects.order_by(
-            f"-{Seed.created_at.desc()}"
-        ).first()
-        seed: Seed = await Seed.objects.create()
+        try:
+            latest_seed: Seed = await Seed.objects.order_by(
+                "-created_at"
+            ).first()
+        except:
+            latest_seed = None
+        is_latest_seed = lambda x: x.id if x else None
+        seed: Seed = await Seed.objects.create(
+            previous_seed_id=is_latest_seed(latest_seed)
+        )
         data = template.render(
             seed_id=seed.id,
             create_date=date.today(),
-            previous_seed=latest_seed.id,
+            previous_seed=is_latest_seed(latest_seed),
         ).replace("\n", "")
 
         path = self.get_path(seed_id=seed.id)
@@ -127,7 +132,7 @@ class Runner:
         path = self.path.format(seed_id=seed_id)
         return import_module(path)
 
-    async def run_seed(self, seed_id: str, validate: bool = True):
+    async def run_seed(self, seed_id: UUID, validate: bool = True):
         try:
             module = self.import_seed(seed_id=seed_id)
             if validate:
@@ -164,7 +169,7 @@ class Runner:
                     "ERROR: Previous seed was not executed."
                 )
 
-    async def execute(self, seed_id: Optional[str] = None):
+    async def execute(self, seed_id=None):
         if seed_id is not None:
             await Seed.objects.get_or_create(id=seed_id)
             await self.run_seed(seed_id)
@@ -173,9 +178,11 @@ class Runner:
                 data = json.load(f)
                 for seed_id in data["seeds"]:
                     seed = SeedInstance.from_module(self.import_seed(seed_id))
-
-                    instance: Seed = await Seed.objects.create_or_update(
-                        **seed.dict(exclude={"next_seed"})
+                    uuid_seed_id = UUID(seed.id)
+                    instance, _ = await Seed.objects.get_or_create(
+                        id=uuid_seed_id
                     )
                     if not instance.is_executed:
-                        await self.run_seed(seed_id=seed_id, validate=False)
+                        await self.run_seed(
+                            seed_id=uuid_seed_id, validate=False
+                        )
